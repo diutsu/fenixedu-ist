@@ -25,22 +25,27 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.AnyoneGroup;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.groups.LoggedGroup;
-import org.fenixedu.bennu.core.groups.NobodyGroup;
 import org.fenixedu.bennu.core.groups.UserGroup;
+import org.fenixedu.cms.domain.DefaultRoles;
+import org.fenixedu.cms.domain.Role;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.common.collect.ImmutableList;
+
+import pt.ist.fenixframework.Atomic;
 
 public class HomepageSite extends HomepageSite_Base {
     public HomepageSite(Person person) {
         super();
         setBennu(Bennu.getInstance());
         setSlug(person.getUser().getUsername());
-        setCanAdminGroup(NobodyGroup.get());
-        setCanPostGroup(NobodyGroup.get());
+
+        new Role(DefaultRoles.getInstance().getAdminRole(), this);
+        new Role(DefaultRoles.getInstance().getAuthorRole(), this);
+        new Role(DefaultRoles.getInstance().getContributorRole(), this);
+        new Role(DefaultRoles.getInstance().getEditorRole(), this);
+
         setOwner(person);
     }
 

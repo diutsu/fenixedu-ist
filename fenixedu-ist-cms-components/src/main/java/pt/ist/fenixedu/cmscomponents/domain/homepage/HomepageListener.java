@@ -61,8 +61,7 @@ public class HomepageListener {
 
     public static HomepageSite create(Person person) {
         HomepageSite newSite = new HomepageSite(person);
-        Menu menu = new Menu(newSite);
-        menu.setName(MENU_TITLE);
+        Menu menu = new Menu(newSite, MENU_TITLE);
 
         newSite.setTheme(CMSTheme.forType("fenixedu-homepages-theme"));
         createDefaultContents(newSite, menu, person.getUser());

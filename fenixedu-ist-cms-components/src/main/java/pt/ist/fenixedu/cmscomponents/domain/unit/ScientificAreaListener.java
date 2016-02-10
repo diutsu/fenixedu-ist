@@ -51,8 +51,7 @@ public class ScientificAreaListener {
 
     public static UnitSite create(Unit scientificArea) {
         final UnitSite newSite = new UnitSite(scientificArea);
-        final Menu menu = new Menu(newSite);
-        menu.setName(MENU_TITLE);
+        final Menu menu = new Menu(newSite, MENU_TITLE);
         createDefaultContents(newSite, menu, Authenticate.getUser());
         return newSite;
     }

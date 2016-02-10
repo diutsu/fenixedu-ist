@@ -50,15 +50,15 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
-import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.Atomic.TxMode;
-
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
+import pt.ist.fenixframework.Atomic;
+import pt.ist.fenixframework.Atomic.TxMode;
 
 @Service
 public class PagesAdminService {
@@ -166,12 +166,11 @@ public class PagesAdminService {
     }
 
     @Atomic(mode = Atomic.TxMode.WRITE)
-    protected GroupBasedFile addAttachment(String name, MultipartFile attachment, MenuItem menuItem) throws IOException {
+    protected PostFile addAttachment(String name, MultipartFile attachment, MenuItem menuItem) throws IOException {
         Post post = postForPage(menuItem.getPage());
         GroupBasedFile file =
                 new GroupBasedFile(name, attachment.getOriginalFilename(), attachment.getBytes(), AnyoneGroup.get());
-        post.getAttachments().putFile(file, 0);
-        return file;
+        return new PostFile(post, file, false, post.getFilesSet().size());
     }
 
     private Post postForPage(Page page) {
@@ -256,19 +255,19 @@ public class PagesAdminService {
     protected JsonElement serializeAttachments(Page page) {
         Post post = postForPage(page);
         JsonArray filesJson = new JsonArray();
-        for (GroupBasedFile postFile : post.getAttachments().getFiles()) {
+        post.getAttachmentFilesSorted().map(PostFile::getFiles).forEach(postFile -> {
             JsonObject json = describeFile(page, postFile);
             json.addProperty("visible", true);
             filesJson.add(json);
-        }
+        });
         if (filesJson.size() > 0) {
             filesJson.get(filesJson.size() - 1).getAsJsonObject().addProperty("last", true);
         }
-        for (GroupBasedFile postFile : post.getPostFiles().getFiles()) {
+        post.getEmbeddedFilesSorted().map(PostFile::getFiles).forEach(postFile -> {
             JsonObject json = describeFile(page, postFile);
             json.addProperty("visible", false);
             filesJson.add(json);
-        }
+        });
         return filesJson;
     }
 
@@ -287,28 +286,17 @@ public class PagesAdminService {
 
     @Atomic
     protected GroupBasedFile addPostFile(MultipartFile attachment, MenuItem menuItem) throws IOException {
-        GroupBasedFile f =
-                new GroupBasedFile(attachment.getOriginalFilename(), attachment.getOriginalFilename(), attachment.getBytes(),
-                        AnyoneGroup.get());
-        postForPage(menuItem.getPage()).getPostFiles().putFile(f);
+        GroupBasedFile f = new GroupBasedFile(attachment.getOriginalFilename(), attachment.getOriginalFilename(),
+                attachment.getBytes(), AnyoneGroup.get());
+        Post post = postForPage(menuItem.getPage());
+        new PostFile(post, f, true, post.getFilesSet().size());
         return f;
     }
 
     @Atomic(mode = Atomic.TxMode.WRITE)
     public void delete(MenuItem menuItem, GroupBasedFile file) {
-        Post post = postForPage(menuItem.getPage());
-
-        Post.Attachments attachments = post.getAttachments();
-        int attachmentPosition =
-                (int) post.getAttachments().getFiles().stream().filter(f -> f == file).map(f -> f.getPostFile().getIndex())
-                        .findAny().orElse(-1);
-        if (attachmentPosition != -1) {
-            attachments.removeFile(attachmentPosition);
-            file.delete();
-        } else if (post.getPostFiles().getFiles().indexOf(file) != -1) {
-            post.getPostFiles().removeFile(file);
-            file.delete();
-        }
+        file.getPostFile().delete();
+        file.delete();
     }
 
     @Atomic(mode = Atomic.TxMode.WRITE)
@@ -320,36 +308,18 @@ public class PagesAdminService {
         attachment.setAccessGroup(permissionGroups(menuItem.getMenu().getSite()).get(groupPosition));
 
         Post post = postForPage(menuItem.getPage());
-
-        if (visible) {
-            Post.Attachments attachments = post.getAttachments();
-            if (attachment.getPostFile() != null) {
-                int currentPosition = attachments.getFiles().indexOf(attachment);
-                if (currentPosition != newPosition) {
-                    attachments.move(currentPosition, newPosition);
-                }
-            } else {
-                attachment.setPost(null);
-                PostFile postFile = new PostFile();
-                postFile.setIndex(attachments.getFiles().size() + 1);
-                postFile.setPost(post);
-                postFile.setFiles(attachment);
-            }
-        } else {
-            if (attachment.getPostFile() != null) {
-                attachment.getPostFile().delete();
-            }
-            attachment.setPost(post);
+        if (newPosition < 0 || newPosition > post.getFilesSet().size()) {
+            newPosition = post.getFilesSet().size();
         }
 
+        new PostFile(post, attachment, true, newPosition);
     }
 
     protected void copyStaticPage(MenuItem oldMenuItem, ExecutionCourseSite newSite, Menu newMenu, MenuItem newParent) {
         if (oldMenuItem.getPage() != null) {
             Page oldPage = oldMenuItem.getPage();
             staticPost(oldPage).ifPresent(oldPost -> {
-                Page newPage = new Page(newSite);
-                newPage.setName(oldPage.getName());
+                Page newPage = new Page(newSite, oldPage.getName());
                 newPage.setTemplate(newSite.getTheme().templateForType(oldPage.getTemplate().getType()));
                 newPage.setCreatedBy(Authenticate.getUser());
                 newPage.setPublished(false);
@@ -387,18 +357,13 @@ public class PagesAdminService {
             newPost.addCategories(newCategory);
         }
 
-        for (int i = 0; i < oldPost.getAttachments().getFiles().size(); ++i) {
-            GroupBasedFile file = oldPost.getAttachments().getFiles().get(i);
+        oldPost.getFilesSorted().forEach(postFile -> {
+            GroupBasedFile file = postFile.getFiles();
             GroupBasedFile attachmentCopy =
                     new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getContent(), AnyoneGroup.get());
-            newPost.getAttachments().putFile(attachmentCopy, i);
-        }
+            new PostFile(newPost, attachmentCopy, postFile.getIsEmbedded(), newPost.getFilesSet().size());
 
-        for (GroupBasedFile file : oldPost.getPostFiles().getFiles()) {
-            GroupBasedFile postFileCopy =
-                    new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getContent(), AnyoneGroup.get());
-            newPost.getPostFiles().putFile(postFileCopy);
-        }
+        });
         return newPost;
     }
 

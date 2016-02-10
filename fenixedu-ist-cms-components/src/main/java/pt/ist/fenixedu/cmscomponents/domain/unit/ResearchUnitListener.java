@@ -48,8 +48,7 @@ public class ResearchUnitListener {
 
     public static UnitSite create(Unit researchUnit) {
         final UnitSite newSite = new UnitSite(researchUnit);
-        final Menu menu = new Menu(newSite);
-        menu.setName(MENU_TITLE);
+        final Menu menu = new Menu(newSite, MENU_TITLE);
         createDefaultContents(newSite, menu, Authenticate.getUser());
         return newSite;
     }

@@ -29,6 +29,7 @@ import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.io.domain.GroupBasedFile;
 import org.fenixedu.cms.domain.MenuItem;
+import org.fenixedu.cms.domain.PermissionEvaluation;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.cms.exceptions.CmsDomainException;
 import org.fenixedu.learning.domain.executionCourse.ExecutionCourseSite;
@@ -43,11 +44,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
-import pt.ist.fenixframework.FenixFramework;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
+import pt.ist.fenixframework.FenixFramework;
 
 @RestController
 @RequestMapping("/pages/{siteId}/admin")
@@ -135,8 +136,9 @@ public class PagesAdminController {
         JsonObject updateMessage = new JsonParser().parse(bodyJson).getAsJsonObject();
         MenuItem menuItem = getDomainObject(updateMessage.get("menuItemId").getAsString());
         GroupBasedFile attachment = getDomainObject(updateMessage.get("fileId").getAsString());
-        service.updateAttachment(menuItem, attachment, updateMessage.get("position").getAsInt(), updateMessage.get("group")
-                .getAsInt(), updateMessage.get("name").getAsString(), updateMessage.get("visible").getAsBoolean());
+        service.updateAttachment(menuItem, attachment, updateMessage.get("position").getAsInt(),
+                updateMessage.get("group").getAsInt(), updateMessage.get("name").getAsString(),
+                updateMessage.get("visible").getAsBoolean());
         return getAttachments(menuItem.getExternalId());
     }
 
@@ -154,8 +156,8 @@ public class PagesAdminController {
             if (!Objects.equals(AccessControl.getPerson(), ((HomepageSite) site).getOwner())) {
                 throw CmsDomainException.forbiden();
             }
-        } else if (!site.getCanAdminGroup().isMember(Authenticate.getUser())) {
-            throw CmsDomainException.forbiden();
+        } else {
+            PermissionEvaluation.canAccess(Authenticate.getUser(), site);
         }
         return site;
     }
