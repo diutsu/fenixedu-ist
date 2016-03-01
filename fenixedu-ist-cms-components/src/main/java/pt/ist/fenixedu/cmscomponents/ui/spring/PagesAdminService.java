@@ -181,7 +181,7 @@ public class PagesAdminService {
     protected JsonObject serialize(Site site) {
         JsonObject data = new JsonObject();
         if (!site.getMenusSet().isEmpty()) {
-            Menu menu = site.getMenusSet().stream().findFirst().get();
+            Menu menu = site.getMenusSet().stream().filter(m -> !m.getPrivileged()).findFirst().get();
             JsonObject root = new JsonObject();
             root.add("title", site.getName().json());
             root.add("root", new JsonPrimitive(true));
