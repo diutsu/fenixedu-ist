@@ -28,9 +28,14 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.accessControl.StudentGroup;
+import org.fenixedu.academic.domain.accessControl.StudentSharingDegreeOfCompetenceOfExecutionCourseGroup;
+import org.fenixedu.academic.domain.accessControl.StudentSharingDegreeOfExecutionCourseGroup;
+import org.fenixedu.academic.domain.accessControl.TeacherGroup;
 import org.fenixedu.bennu.core.groups.AnyoneGroup;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.groups.LoggedGroup;
+import org.fenixedu.bennu.core.groups.UserGroup;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.io.domain.GroupBasedFile;
 import org.fenixedu.bennu.io.servlets.FileDownloadServlet;
@@ -41,11 +46,9 @@ import org.fenixedu.cms.domain.Page;
 import org.fenixedu.cms.domain.Post;
 import org.fenixedu.cms.domain.PostFile;
 import org.fenixedu.cms.domain.Site;
-import org.fenixedu.cms.domain.component.Component;
 import org.fenixedu.cms.domain.component.StaticPost;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.learning.domain.executionCourse.ExecutionCourseSite;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,7 +59,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 
@@ -77,11 +79,21 @@ public class PagesAdminService {
     }
 
     static List<Group> permissionGroups(Site site) {
-        if (site instanceof ExecutionCourseSite) {
-            return ((ExecutionCourseSite) site).getContextualPermissionGroups();
+        if (site.getExecutionCourse()!=null) {
+            return ImmutableList.of(
+                    AnyoneGroup.get(),
+                    LoggedGroup.get(),
+                    TeacherGroup.get(site.getExecutionCourse()),
+                    TeacherGroup.get(site.getExecutionCourse()).or(StudentGroup.get(site.getExecutionCourse())),
+                    StudentSharingDegreeOfExecutionCourseGroup.get(site.getExecutionCourse()),
+                    StudentSharingDegreeOfCompetenceOfExecutionCourseGroup.get(site.getExecutionCourse())
+            );
         }
-        if (site instanceof HomepageSite) {
-            return ((HomepageSite) site).getContextualPermissionGroups();
+        if (site.getHomepageSite()!=null) {
+            return ImmutableList.of(
+                    AnyoneGroup.get(),
+                    LoggedGroup.get(),
+                    UserGroup.of(site.getOwner().getUser()));
         }
         return ImmutableList.of(AnyoneGroup.get(), LoggedGroup.get());
     }
@@ -315,7 +327,7 @@ public class PagesAdminService {
         new PostFile(post, attachment, true, newPosition);
     }
 
-    protected void copyStaticPage(MenuItem oldMenuItem, ExecutionCourseSite newSite, Menu newMenu, MenuItem newParent) {
+    protected void copyStaticPage(MenuItem oldMenuItem, Site newSite, Menu newMenu, MenuItem newParent) {
         if (oldMenuItem.getPage() != null) {
             Page oldPage = oldMenuItem.getPage();
             staticPost(oldPage).ifPresent(oldPost -> {
@@ -324,15 +336,13 @@ public class PagesAdminService {
                 newPage.setCreatedBy(Authenticate.getUser());
                 newPage.setPublished(false);
 
-                for (Component component : oldPage.getComponentsSet()) {
-                    if (component instanceof StaticPost) {
-                        StaticPost staticPostComponent = (StaticPost) component;
-                        Post newPost = clonePost(staticPostComponent.getPost(), newSite);
-                        newPost.setActive(true);
-                        StaticPost newComponent = new StaticPost(newPost);
-                        newPage.addComponents(newComponent);
-                    }
-                }
+                oldPage.getComponentsSet().stream().filter(component -> component instanceof StaticPost).forEach(component -> {
+                    StaticPost staticPostComponent = (StaticPost) component;
+                    Post newPost = clonePost(staticPostComponent.getPost(), newSite);
+                    newPost.setActive(true);
+                    StaticPost newComponent = new StaticPost(newPost);
+                    newPage.addComponents(newComponent);
+                });
 
                 MenuItem newMenuItem = MenuItem.create(newMenu, newPage, oldMenuItem.getName(), newParent);
                 newMenuItem.setPosition(oldMenuItem.getPosition());

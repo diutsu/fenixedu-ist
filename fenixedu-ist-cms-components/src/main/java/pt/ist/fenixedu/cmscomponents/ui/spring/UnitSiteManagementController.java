@@ -59,7 +59,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import pt.ist.fenixedu.cmscomponents.domain.unit.UnitSite;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
@@ -193,7 +192,7 @@ public class UnitSiteManagementController {
         if (!FenixFramework.isDomainObjectValid(site)) {
             throw BennuCoreDomainException.resourceNotFound(unitSiteSlug);
         }
-        if (site instanceof UnitSite) {
+        if (site.getUnit()!=null) {
             if (!PermissionEvaluation.canAccess(Authenticate.getUser(), site)) {
                 throw CmsDomainException.forbiden();
             }

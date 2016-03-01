@@ -48,7 +48,7 @@ public class ResearcherComponent extends ResearcherComponent_Base {
     @Override
     public void handle(Page page, TemplateContext local, TemplateContext global) {
         global.put("bundle", getTitleBundle());
-        global.put("researcher", ((HomepageSite) page.getSite()).getOwner().getUsername());
+        global.put("researcher", page.getSite().getOwner().getUsername());
         global.put("sotisUrl", FenixEduIstCmsComponentsConfiguration.getConfiguration().sotisURL());
         global.put("language", I18N.getLocale().toLanguageTag());
         global.put("dataKey", getDataKey());
@@ -56,7 +56,7 @@ public class ResearcherComponent extends ResearcherComponent_Base {
     }
 
     public static boolean supportsSite(Site site) {
-        return site instanceof HomepageSite;
+        return site.getHomepageSite()!=null;
     }
 
     @Override

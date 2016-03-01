@@ -32,7 +32,6 @@ import org.fenixedu.cms.domain.MenuItem;
 import org.fenixedu.cms.domain.PermissionEvaluation;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.cms.exceptions.CmsDomainException;
-import org.fenixedu.learning.domain.executionCourse.ExecutionCourseSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +46,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
 import pt.ist.fenixframework.FenixFramework;
 
 @RestController
@@ -148,12 +146,12 @@ public class PagesAdminController {
         if (!FenixFramework.isDomainObjectValid(site)) {
             throw BennuCoreDomainException.resourceNotFound(siteId);
         }
-        if (site instanceof ExecutionCourseSite) {
-            if (((ExecutionCourseSite) site).getExecutionCourse().getProfessorshipForCurrentUser() == null) {
+        if (site.getExecutionCourse()!=null) {
+            if (site.getExecutionCourse().getProfessorshipForCurrentUser() == null) {
                 throw CmsDomainException.forbiden();
             }
-        } else if (site instanceof HomepageSite) {
-            if (!Objects.equals(AccessControl.getPerson(), ((HomepageSite) site).getOwner())) {
+        } else if (site.getHomepageSite()!=null) {
+            if (!Objects.equals(AccessControl.getPerson(), site.getOwner())) {
                 throw CmsDomainException.forbiden();
             }
         } else {

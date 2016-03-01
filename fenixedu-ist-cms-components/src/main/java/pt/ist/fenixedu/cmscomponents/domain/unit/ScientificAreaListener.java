@@ -49,8 +49,8 @@ public class ScientificAreaListener {
     private static final LocalizedString TITLE_PUBLICATIONS = getLocalizedString(BUNDLE, "department.publications");
     private static final LocalizedString TITLE_COURES = getLocalizedString(BUNDLE, "department.courses");
 
-    public static UnitSite create(Unit scientificArea) {
-        final UnitSite newSite = new UnitSite(scientificArea);
+    public static Site create(Unit scientificArea) {
+        final Site newSite = new Site(scientificArea.getNameI18n().toLocalizedString(),scientificArea.getNameI18n().toLocalizedString());
         final Menu menu = new Menu(newSite, MENU_TITLE);
         createDefaultContents(newSite, menu, Authenticate.getUser());
         return newSite;

@@ -57,8 +57,8 @@ public class DepartmentListener {
     private static final LocalizedString TITLE_EMPLOYEES = getLocalizedString(BUNDLE, "department.staff");
     private static final LocalizedString TITLE_TEACHERS = getLocalizedString(BUNDLE, "department.faculty");
 
-    public static UnitSite create(Department department) {
-        final UnitSite newSite = new UnitSite(department.getDepartmentUnit());
+    public static Site create(Department department) {
+        final Site newSite = new Site( department.getDepartmentUnit().getNameI18n().toLocalizedString(), department.getDepartmentUnit().getNameI18n().toLocalizedString());
         final Menu menu = new Menu(newSite, MENU_TITLE);
         createDefaultContents(newSite, menu, Authenticate.getUser());
         return newSite;
