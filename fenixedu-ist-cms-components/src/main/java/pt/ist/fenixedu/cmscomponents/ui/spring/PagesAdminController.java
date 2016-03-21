@@ -71,7 +71,7 @@ public class PagesAdminController {
     public @ResponseBody String create(@PathVariable String siteId, @RequestBody String bodyJson) {
         PagesAdminBean bean = new PagesAdminBean(bodyJson);
         Site site = site(siteId);
-        Optional<MenuItem> menuItem = service.create(site, bean.getParent(), bean.getTitle(), bean.getBody());
+        Optional<MenuItem> menuItem = service.create(site, bean.getParent(), bean.getTitle(), bean.getBody(),bean.getExcerpt());
         return service.serialize(menuItem.get(), true).toString();
     }
 
@@ -85,7 +85,7 @@ public class PagesAdminController {
     public @ResponseBody String edit(@RequestBody String bodyJson) {
         PagesAdminBean bean = new PagesAdminBean(bodyJson);
         MenuItem menuItem =
-                service.edit(bean.getMenuItem(), bean.getTitle(), bean.getBody(), bean.getCanViewGroup(), bean.isVisible());
+                service.edit(bean.getMenuItem(), bean.getTitle(), bean.getBody(), bean.getExcerpt(), bean.getCanViewGroup(), bean.isVisible());
         return service.serialize(menuItem, true).toString();
     }
 

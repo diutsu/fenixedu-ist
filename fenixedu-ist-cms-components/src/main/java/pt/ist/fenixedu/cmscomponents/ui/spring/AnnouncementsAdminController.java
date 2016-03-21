@@ -140,11 +140,11 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public RedirectView create(@PathVariable ExecutionCourse executionCourse, @RequestParam LocalizedString name,
-            @RequestParam LocalizedString body, @RequestParam(required = false, defaultValue = "false") boolean active,
+            @RequestParam LocalizedString body, @RequestParam(required = false) LocalizedString excerpt, @RequestParam(required = false, defaultValue = "false") boolean active,
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) DateTime publicationStarts) throws Exception {
         Site site = executionCourse.getSite();
         atomic(() -> {
-            Post post = Post.create(site, null, Post.sanitize(name), Post.sanitize(body), announcementsCategory(site), active,
+            Post post = Post.create(site, null, Post.sanitize(name), Post.sanitize(body), Post.sanitize(excerpt), announcementsCategory(site), active,
                     getUser());
             if (publicationStarts == null) {
                 post.setPublicationBegin(null);
@@ -159,13 +159,13 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
 
     @RequestMapping(value = "{postSlug}/edit", method = RequestMethod.POST)
     public RedirectView edit(@PathVariable ExecutionCourse executionCourse, @PathVariable String postSlug,
-            @RequestParam LocalizedString name, @RequestParam LocalizedString body,
+            @RequestParam LocalizedString name, @RequestParam LocalizedString body, @RequestParam(required = false) LocalizedString excerpt,
             @RequestParam(required = false, defaultValue = "false") boolean active,
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) DateTime publicationStarts) {
         Post post = executionCourse.getSite().postForSlug(postSlug);
         atomic(() -> {
             post.setName(Post.sanitize(name));
-            post.setBody(Post.sanitize(body));
+            post.setBodyAndExcerpt(Post.sanitize(body), Post.sanitize(excerpt));
             post.setActive(active);
             if (publicationStarts == null) {
                 post.setPublicationBegin(null);
