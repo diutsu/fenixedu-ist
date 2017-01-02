@@ -14,7 +14,7 @@
 
     <properties>
         <version.com.itextpdf.itextpdf>5.5.9</version.com.itextpdf.itextpdf>
-        <version.io.jsonwebtoken.jjwt>0.6.0</version.io.jsonwebtoken.jjwt>
+        <version.io.jsonwebtoken.jjwt>0.7.0</version.io.jsonwebtoken.jjwt>
     </properties>
 
     <dependencies>

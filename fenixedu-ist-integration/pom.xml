@@ -12,9 +12,9 @@
     <name>FenixEdu IST Integration</name>
 
     <properties>
-        <version.com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider>2.2.3</version.com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider>
-        <version.com.fasterxml.jackson.core.jackson-databind>2.2.3</version.com.fasterxml.jackson.core.jackson-databind>
-        <version.com.fasterxml.jackson.core.jackson-annotations>2.2.3</version.com.fasterxml.jackson.core.jackson-annotations>
+        <version.com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider>2.8.5</version.com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider>
+        <version.com.fasterxml.jackson.core.jackson-databind>2.8.5</version.com.fasterxml.jackson.core.jackson-databind>
+        <version.com.fasterxml.jackson.core.jackson-annotations>2.8.5</version.com.fasterxml.jackson.core.jackson-annotations>
         <version.com.googlecode.json-simple.json-simple>1.1</version.com.googlecode.json-simple.json-simple>
         <version.org.mnode.ical4j.ical4j>1.0.5.2</version.org.mnode.ical4j.ical4j>
     </properties>
@@ -98,27 +98,11 @@
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fenixedu</groupId>
             <artifactId>bennu-scheduler</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-portal</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fenixedu</groupId>
             <artifactId>bennu-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-oauth</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
