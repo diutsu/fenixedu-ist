@@ -101,6 +101,10 @@
             <artifactId>fenixedu-ist-parking</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.fenixedu</groupId>
+            <artifactId>bennu-core</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>

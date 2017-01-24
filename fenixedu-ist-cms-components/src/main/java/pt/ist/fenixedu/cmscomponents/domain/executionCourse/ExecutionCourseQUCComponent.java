@@ -37,6 +37,7 @@ import org.joda.time.DateTime;
 import pt.ist.fenixedu.quc.domain.InquiryResult;
 import pt.ist.fenixedu.quc.domain.TeacherInquiryTemplate;
 
+
 @ComponentType(description = "Shows QUC Results on Public Pages", name = "QUC Results")
 public class ExecutionCourseQUCComponent extends BaseExecutionCourseComponent {
 

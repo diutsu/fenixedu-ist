@@ -36,6 +36,8 @@ import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.reports.GepReportFile;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.signals.DomainObjectEvent;
+import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -60,6 +62,8 @@ public class InquiryResult extends InquiryResult_Base {
         }
 
     };
+    
+    public static final String CREATED_QUC_SIGNAL = "quc.executionCourse.create";
 
     public InquiryResult() {
         super();
@@ -471,6 +475,8 @@ public class InquiryResult extends InquiryResult_Base {
             }
             InquiryConnectionType connectionType = InquiryConnectionType.valueOf(connectionTypeString);
             setConnectionType(connectionType);
+    
+            Signal.emit(InquiryResult.CREATED_QUC_SIGNAL, new DomainObjectEvent<>(executionCourse));
         }
 
         private String getPrintableColumns(String[] columns) {

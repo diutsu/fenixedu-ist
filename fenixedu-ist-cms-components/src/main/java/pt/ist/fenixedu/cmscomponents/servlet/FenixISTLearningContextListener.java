@@ -22,15 +22,20 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Person;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.bennu.core.signals.DomainObjectEvent;
+import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.cms.routing.CMSRenderer;
 import org.fenixedu.learning.domain.executionCourse.ExecutionCourseRequestHandler;
+import pt.ist.fenixedu.cmscomponents.domain.executionCourse.ExecutionCourseQUCListener;
 import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageRequestHandler;
 import pt.ist.fenixedu.cmscomponents.domain.homepage.HomepageSite;
 import pt.ist.fenixedu.cmscomponents.domain.unit.UnitRequestHandler;
+import pt.ist.fenixedu.quc.domain.InquiryResult;
 import pt.ist.fenixframework.FenixFramework;
 
 /**
@@ -55,7 +60,11 @@ public class FenixISTLearningContextListener implements ServletContextListener {
                 site.delete();
             }
         });
-
+    
+        Signal.register(InquiryResult.CREATED_QUC_SIGNAL, (DomainObjectEvent<ExecutionCourse> event) -> {
+            ExecutionCourseQUCListener.createQUCComponent(event.getInstance());
+        });
+        
         CMSRenderer.addHandler(new HomepageRequestHandler());
         CMSRenderer.addHandler(new UnitRequestHandler());
 
