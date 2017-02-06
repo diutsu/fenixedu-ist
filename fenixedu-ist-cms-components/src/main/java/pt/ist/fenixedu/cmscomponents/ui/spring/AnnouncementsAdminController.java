@@ -41,20 +41,18 @@ import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.io.domain.GroupBasedFile;
 import org.fenixedu.bennu.io.servlet.FileDownloadServlet;
+import org.fenixedu.bennu.spring.security.CSRFTokenBean;
 import org.fenixedu.cms.domain.*;
 import org.fenixedu.cms.ui.AdminPosts;
 import org.fenixedu.cms.ui.AdminSites;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -72,7 +70,16 @@ public class AnnouncementsAdminController extends ExecutionCourseController {
             getLocalizedString("resources.FenixEduLearningResources", "label.announcements");
 
     private static final int PER_PAGE = 5;
-
+    
+    // hack
+    @Autowired
+    CSRFTokenBean csrfTokenBean;
+    
+    @ModelAttribute("csrfField")
+    public String getCSRFField(){
+        return csrfTokenBean.field();
+    }
+    
     @RequestMapping(method = RequestMethod.GET)
     public AnnouncementsAdminView all(Model model, @PathVariable ExecutionCourse executionCourse,
             @RequestParam(required = false, defaultValue = "1") int page) {
