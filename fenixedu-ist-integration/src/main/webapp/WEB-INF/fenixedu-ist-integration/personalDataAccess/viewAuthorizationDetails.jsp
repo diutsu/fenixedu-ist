@@ -216,8 +216,8 @@
 
         var csrfHiddenField = document.createElement("input");
         csrfHiddenField.setAttribute("type", "hidden");
-        csrfHiddenField.setAttribute("name", ${csrf.parameterName});
-        csrfHiddenField.setAttribute("value", ${csrf.token});
+        csrfHiddenField.setAttribute("name", "${csrf.parameterName}");
+        csrfHiddenField.setAttribute("value", "${csrf.token}");
         form.appendChild(csrfHiddenField);
 
         var hiddenField = document.createElement("input");
