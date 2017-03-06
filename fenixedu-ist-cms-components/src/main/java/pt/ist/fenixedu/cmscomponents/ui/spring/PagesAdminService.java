@@ -387,7 +387,7 @@ public class PagesAdminService {
         oldPost.getFilesSorted().forEach(postFile -> {
             GroupBasedFile file = postFile.getFiles();
             GroupBasedFile attachmentCopy =
-                    new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getContent(), Group.anyone());
+                    new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getContent(), newSite.getDefaultRoleTemplateRole().getGroup());
             new PostFile(newPost, attachmentCopy, postFile.getIsEmbedded(), newPost.getFilesSet().size());
 
         });
