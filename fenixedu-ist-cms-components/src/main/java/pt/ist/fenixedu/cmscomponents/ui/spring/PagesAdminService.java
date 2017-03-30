@@ -95,7 +95,7 @@ public class PagesAdminService {
         //recursive call to remove associated childrens
         menuItem.getChildrenSorted().forEach(this::delete);
         //deleting a page allready deletes all the associated menu items and components
-        menuItem.getPage().delete();
+        menuItem.getPage().archive();
     }
 
     @Atomic(mode = Atomic.TxMode.WRITE)
